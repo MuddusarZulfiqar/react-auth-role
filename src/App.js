@@ -1,24 +1,34 @@
-import logo from './logo.svg';
-import './App.css';
-
+import "./App.css";
+import { Routes, Route, Navigate } from "react-router-dom";
+import Login from "./views/Login";
+import DashboardLayout from "./Layouts/DashboardLayout";
+import Dashboard from "./views/Dashboard";
+import AdminDashboard from "./views/AdminDashboard";
+import RequireAuth from "./components/RequireAuth";
+import NonRequireAuth from "./components/NonRequireAuth";
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Routes>
+      <Route element={<NonRequireAuth />}>
+        <Route path="/" element={<Login />} />
+      </Route>
+
+      {/* Private Routes  */}
+      <Route element={<RequireAuth allowedRoles={["user", "admin","driver"]} />}>
+        <Route path="/dashboard" element={<DashboardLayout />}>
+          <Route element={<RequireAuth allowedRoles={["user", "admin"]} />}>
+            <Route path="home" element={<Dashboard />} />
+          </Route>
+          <Route element={<RequireAuth allowedRoles={["admin"]} />}>
+            <Route path="admin" element={<AdminDashboard />} />
+          </Route>
+        </Route>
+        <Route path="*" element={<Navigate to={"/dashboard/home"} replace />} />
+      </Route>
+      {/* End Private Routes */}
+      
+      <Route path="*" element={<Navigate to={"/"} replace />} />
+    </Routes>
   );
 }
 
